@@ -66,6 +66,13 @@ func handlerListEC2Instances(w http.ResponseWriter, r *http.Request) {
 
     svc := ec2.New(session.New(), &aws.Config{Region: aws.String("eu-west-1")})
 
+    instanceState := r.FormValue("state")
+    if instanceState == "" {
+        instanceState = "running"
+    }
+
+    // Describe all instances whilst applying the defined filter
+    // http://docs.aws.amazon.com/sdk-for-go/api/service/ec2.html#type-DescribeInstancesInput
     params := &ec2.DescribeInstancesInput{
         Filters: []*ec2.Filter{
             &ec2.Filter{
@@ -76,15 +83,6 @@ func handlerListEC2Instances(w http.ResponseWriter, r *http.Request) {
             },
         },
     }
-
-    instanceState := r.FormValue("state")
-    if instanceState == "" {
-        instanceState = "running"
-    }
-
-    // Describe all instances whilst applying the defined filter
-    // http://docs.aws.amazon.com/sdk-for-go/api/service/ec2.html#type-DescribeInstancesInput
-    
 
     // Call the DescribeInstances Operation
     resp, err := svc.DescribeInstances(params)
